@@ -31,6 +31,22 @@ module "vpc" {
   }
 }
 
+
+module "blog_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.1"
+  name    = "blog_sg"
+
+  vpc_id  = module.vpc.public_subnets[0]
+
+  ingress_rules       = ["http-80-tcp","https-443-tcp"]
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+
+  egress_rules  = ["all-all"]
+  egress_cidr_blocks = ["0.0.0.0/0"]
+
+}
+
 resource "aws_instance" "blog" {
   ami           = data.aws_ami.app_ami.id
   instance_type = var.instance_type
@@ -41,19 +57,3 @@ resource "aws_instance" "blog" {
     Name = "HelloWorld"
   }
 }
-
-module "blog_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "4.17.1"
-  name    = "blog_sg"
-
-  vpc_id  = module.dev.public_subnets[0]
-
-  ingress_rules       = ["http-80-tcp","https-443-tcp"]
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-
-  egress_rules  = ["all-all"]
-  egress_cidr_blocks = ["0.0.0.0/0"]
-
-}
-
